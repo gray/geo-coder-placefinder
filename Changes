@@ -1,4 +1,8 @@
 Revision history for Geo-Coder-PlaceFinder
 
+0.02  Tue Jul 6 20:42:55 UTC 2010
+    - Updated pod to reflect reality (removed reference to non-existent
+      batch method).
+
 0.01  Tue Jul 6 06:30:23 UTC 2010
     - Initial distribution.

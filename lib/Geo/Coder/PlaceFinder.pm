@@ -9,7 +9,7 @@ use JSON;
 use LWP::UserAgent;
 use URI;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 $VERSION = eval $VERSION;
 
 sub new {
@@ -157,14 +157,6 @@ Each location result is a hashref; a typical example looks like:
         woetype      => 20,
         xstreet      => "",
     }
-
-=head2 batch
-
-    @results = $geocoder->geocode(locations => [ $location, ... ])
-
-Allows up to 100 locations to be geocoded in the same request.  Returns
-a list of results, each of which is a reference to a list of locations.
-Will croak if more than 100 locations are given.
 
 =head2 response
 
