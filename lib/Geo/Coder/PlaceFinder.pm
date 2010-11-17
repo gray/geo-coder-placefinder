@@ -49,17 +49,21 @@ sub geocode {
     my ($self, @params) = @_;
     my %params = (@params % 2) ? (location => @params) : @params;
 
-    my $location = $params{location} or return;
-    $location = Encode::encode('utf-8', $location);
+    # Allow user to pass free-form, multi-line or fully-parsed formats.
+    return unless grep { defined } qw(
+        location q name line1 addr house woeid
+    );
+
+    while (my ($key, $val) = each %params) {
+        $params{$key} = Encode::encode('utf-8', $val);
+    }
 
     my $uri = URI->new('http://where.yahooapis.com/geocode');
     $uri->query_form(
         appid  => $self->{appid},
-        q      => $location,
         flags  => 'JRST',
         gflags => 'AC',
-        map { defined $params{$_} ? ($_ => $params{$_}) : () }
-            qw(locale start count offset)
+        %params,
     );
 
     my $res = $self->{response} = $self->ua->get($uri);
