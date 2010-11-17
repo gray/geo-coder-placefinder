@@ -8,7 +8,7 @@ unless ($ENV{YAHOO_APPID}) {
     plan skip_all => 'YAHOO_APIPID environment variable must be set';
 }
 else {
-    plan tests => 8;
+    plan tests => 10;
 }
 
 my $debug = $ENV{GEO_CODER_PLACEFINDER_DEBUG};
@@ -24,7 +24,7 @@ my $geocoder = Geo::Coder::PlaceFinder->new(
 {
     my $address = 'Hollywood & Highland, Los Angeles, CA';
     my $location = $geocoder->geocode($address);
-    is($location->{postal}, 90028, "correct zip code for $address");
+    like($location->{postal}, qr/^90028/, "correct zip code for $address");
 }
 {
     my @locations = $geocoder->geocode('Main Street, Los Angeles, CA');
@@ -46,4 +46,36 @@ my $geocoder = Geo::Coder::PlaceFinder->new(
     );
     ok($location, 'UTF-8 bytes');
     is($location->{countrycode}, 'FR', 'UTF-8 bytes');
+}
+
+# Multi-line format.
+{
+    my @address = (
+        line1 => '701 First Ave.',
+        line2 => 'Sunnyvale, CA 94089',
+        line3 => 'USA',
+    );
+    my $location = $geocoder->geocode(@address);
+    like(
+        $location->{postal}, qr/^94089/,
+        "correct zip code for multi-line address"
+    );
+}
+
+# Fully-parsed format.
+{
+    my @address = (
+        house    => 701,
+        street   => 'First Ave.',
+        xstreet  => 'Mathilda Ave.',
+        postal   => 94089,
+        city     => 'Sunnyvale',
+        county   => 'Santa Clara',
+        country  => 'USA',
+    );
+    my $location = $geocoder->geocode(@address);
+    like(
+        $location->{postal}, qr/^94089/,
+        "correct zip code for fully-parsed address"
+    );
 }
