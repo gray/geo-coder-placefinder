@@ -50,7 +50,7 @@ sub geocode {
     my %params = (@params % 2) ? (location => @params) : @params;
 
     # Allow user to pass free-form, multi-line or fully-parsed formats.
-    return unless grep { defined } qw(
+    return unless grep { defined $params{$_} } qw(
         location q name line1 addr house woeid
     );
 
