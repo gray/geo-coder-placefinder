@@ -1,5 +1,8 @@
 Revision history for Geo-Coder-PlaceFinder
 
+0.04  Mon Mar 21 18:07:44 UTC 2011
+    - Enabled compressed responses by default.
+
 0.03  Wed Nov 17 20:43:56 UTC 2010
     - Accomodated multi-line and fully-parsed formatted addresses by
       passing through any user-defined query parameters. (RT #63088)

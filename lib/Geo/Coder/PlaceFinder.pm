@@ -9,7 +9,7 @@ use JSON;
 use LWP::UserAgent;
 use URI;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 $VERSION = eval $VERSION;
 
 sub new {
