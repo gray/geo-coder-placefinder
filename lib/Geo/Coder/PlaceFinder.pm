@@ -48,13 +48,13 @@ sub ua {
     return $self->{ua};
 }
 
-sub geocode {
+sub geocode_to_resultset {
     my ($self, @params) = @_;
     my %params = (@params % 2) ? (location => @params) : @params;
 
     # Allow user to pass free-form, multi-line or fully-parsed formats.
     return unless grep { defined $params{$_} } qw(
-        location q name line1 addr house woeid
+        location q name line1 addr house woeid city
     );
 
     while (my ($key, $val) = each %params) {
@@ -70,16 +70,22 @@ sub geocode {
     );
 
     my $res = $self->{response} = $self->ua->get($uri);
-    return unless $res->is_success;
+    return undef unless $res->is_success;
 
     # Change the content type of the response from 'application/json' so
     # HTTP::Message will decode the character encoding.
     $res->content_type('text/plain');
 
-    my $data = eval { from_json($res->decoded_content) };
-    return unless $data;
+    return from_json($res->decoded_content)->{ResultSet};
+}
 
-    my @results = @{ $data->{ResultSet}{Results} || [] };
+sub geocode {
+    my ($self, @params) = @_;
+
+    my $resultset = eval { $self->geocode_to_resultset(@params) };
+    return unless $resultset;
+
+    my @results = @{ $resultset->{Results} || [] };
     return wantarray ? @results : $results[0];
 }
 
@@ -164,6 +170,17 @@ Each location result is a hashref; a typical example looks like:
         woetype      => 20,
         xstreet      => "",
     }
+
+=head2 geocode_to_resultset
+
+    $resultset = $geocoder->geocode_to_resultset(location => $location);
+
+Takes the same arguments as L</geocode> but returns a reference to the
+top-level C<ResultSet> data structure, as documented in
+L<http://developer.yahoo.com/geo/placefinder/guide/responses.html>.
+
+This enables access to elements like $resultset->{ErrorMessage} and
+$resultset->{Quality}.
 
 =head2 response
 
