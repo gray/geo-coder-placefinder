@@ -134,6 +134,12 @@ object.
 In scalar context, this method returns the first location result; and in
 list context it returns all location results.
 
+The use C<location> as a named argument is optional.
+Extra pairs of named arguments can be given, including all those defined in
+L<http://developer.yahoo.com/geo/placefinder/guide/requests.html#location-parameters>
+
+The default C<flags> value is 'C<JRST>', and the default C<gflags> value is 'C<AC>'.
+
 Each location result is a hashref; a typical example looks like:
 
     {
