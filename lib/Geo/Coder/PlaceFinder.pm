@@ -28,6 +28,7 @@ sub new {
         my $dump_sub = sub { $_[0]->dump(maxlength => 0); return };
         $self->ua->set_my_handler(request_send  => $dump_sub);
         $self->ua->set_my_handler(response_done => $dump_sub);
+        $self->{compress} ||= 0; # default compress off with debug
     }
     if (exists $self->{compress} ? $self->{compress} : 1) {
         $self->ua->default_header(accept_encoding => 'gzip,deflate');
@@ -126,6 +127,12 @@ L<https://developer.apps.yahoo.com/dashboard/createKey.html>
 Accepts an optional B<ua> parameter for passing in a custom LWP::UserAgent
 object.
 
+Accepts an optional B<compress> boolean parameter to control use of compression
+in the response. Defaults to true (see C<debug> below).
+
+Accepts an optional B<debug> boolean parameter. If true then the request and
+response data is printed to stderr. Also, the default for C<compress> is changed to false.
+
 =head2 geocode
 
     $location = $geocoder->geocode(location => $location)
@@ -186,7 +193,8 @@ top-level C<ResultSet> data structure, as documented in
 L<http://developer.yahoo.com/geo/placefinder/guide/responses.html>.
 
 This enables access to elements like $resultset->{ErrorMessage} and
-$resultset->{Quality}.
+$resultset->{Quality} (which is the 'quality' of the address details you're
+seeking to geocode, independent of the result quality).
 
 =head2 response
 
