@@ -28,8 +28,9 @@ sub new {
         my $dump_sub = sub { $_[0]->dump(maxlength => 0); return };
         $self->ua->set_my_handler(request_send  => $dump_sub);
         $self->ua->set_my_handler(response_done => $dump_sub);
+        $self->{compress} ||= 0; # default compress off with debug
     }
-    elsif (exists $self->{compress} ? $self->{compress} : 1) {
+    if (exists $self->{compress} ? $self->{compress} : 1) {
         $self->ua->default_header(accept_encoding => 'gzip,deflate');
     }
 
@@ -48,13 +49,13 @@ sub ua {
     return $self->{ua};
 }
 
-sub geocode {
+sub geocode_to_resultset {
     my ($self, @params) = @_;
     my %params = (@params % 2) ? (location => @params) : @params;
 
     # Allow user to pass free-form, multi-line or fully-parsed formats.
     return unless grep { defined $params{$_} } qw(
-        location q name line1 addr house woeid
+        location q name line1 addr house woeid city
     );
 
     while (my ($key, $val) = each %params) {
@@ -70,16 +71,22 @@ sub geocode {
     );
 
     my $res = $self->{response} = $self->ua->get($uri);
-    return unless $res->is_success;
+    return undef unless $res->is_success;
 
     # Change the content type of the response from 'application/json' so
     # HTTP::Message will decode the character encoding.
     $res->content_type('text/plain');
 
-    my $data = eval { from_json($res->decoded_content) };
-    return unless $data;
+    return from_json($res->decoded_content)->{ResultSet};
+}
 
-    my @results = @{ $data->{ResultSet}{Results} || [] };
+sub geocode {
+    my ($self, @params) = @_;
+
+    my $resultset = eval { $self->geocode_to_resultset(@params) };
+    return unless $resultset;
+
+    my @results = @{ $resultset->{Results} || [] };
     return wantarray ? @results : $results[0];
 }
 
@@ -120,6 +127,12 @@ L<https://developer.apps.yahoo.com/dashboard/createKey.html>
 Accepts an optional B<ua> parameter for passing in a custom LWP::UserAgent
 object.
 
+Accepts an optional B<compress> boolean parameter to control use of compression
+in the response. Defaults to true (see C<debug> below).
+
+Accepts an optional B<debug> boolean parameter. If true then the request and
+response data is printed to stderr. Also, the default for C<compress> is changed to false.
+
 =head2 geocode
 
     $location = $geocoder->geocode(location => $location)
@@ -127,6 +140,12 @@ object.
 
 In scalar context, this method returns the first location result; and in
 list context it returns all location results.
+
+The use C<location> as a named argument is optional.
+Extra pairs of named arguments can be given, including all those defined in
+L<http://developer.yahoo.com/geo/placefinder/guide/requests.html#location-parameters>
+
+The default C<flags> value is 'C<JRST>', and the default C<gflags> value is 'C<AC>'.
 
 Each location result is a hashref; a typical example looks like:
 
@@ -164,6 +183,18 @@ Each location result is a hashref; a typical example looks like:
         woetype      => 20,
         xstreet      => "",
     }
+
+=head2 geocode_to_resultset
+
+    $resultset = $geocoder->geocode_to_resultset(location => $location);
+
+Takes the same arguments as L</geocode> but returns a reference to the
+top-level C<ResultSet> data structure, as documented in
+L<http://developer.yahoo.com/geo/placefinder/guide/responses.html>.
+
+This enables access to elements like $resultset->{ErrorMessage} and
+$resultset->{Quality} (which is the 'quality' of the address details you're
+seeking to geocode, independent of the result quality).
 
 =head2 response
 
