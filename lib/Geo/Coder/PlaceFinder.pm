@@ -58,7 +58,7 @@ sub geocode {
     my $uri = URI->new('http://where.yahooapis.com/geocode');
     $uri->query_form(
         appid  => $self->{appid},
-        flags  => 'JRST',
+        flags  => 'JRSTX',
         gflags => 'AC',
         %params,
     );
@@ -171,7 +171,7 @@ By default the following arguments are added:
 
 =item * I<flags>
 
-JRST
+JRSTX
 
 =item * I<gflags>
 
@@ -183,6 +183,12 @@ Example of the data structure representing a location result:
 
     {
         areacode    => 408,
+        boundingbox => {
+            east  => "-122.025092",
+            north => "37.416275",
+            south => "37.416275",
+            west  => "-122.025092",
+        },
         city        => "Sunnyvale",
         country     => "United States",
         countrycode => "US",
