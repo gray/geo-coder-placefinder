@@ -28,8 +28,9 @@ sub new {
         my $dump_sub = sub { $_[0]->dump(maxlength => 0); return };
         $self->ua->set_my_handler(request_send  => $dump_sub);
         $self->ua->set_my_handler(response_done => $dump_sub);
+        $self->{compress} ||= 0;
     }
-    elsif (exists $self->{compress} ? $self->{compress} : 1) {
+    if (exists $self->{compress} ? $self->{compress} : 1) {
         $self->ua->default_header(accept_encoding => 'gzip,deflate');
     }
 
@@ -130,7 +131,7 @@ A custom LWP::UserAgent object. (optional)
 
 =item * I<compress>
 
-Enable compression. (default: 1)
+Enable compression. (default: 1, unless I<debug> is enabled)
 
 =item * I<debug>
 
