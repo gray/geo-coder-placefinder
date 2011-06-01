@@ -91,7 +91,7 @@ Geo::Coder::PlaceFinder - Geocode addresses with Yahoo PlaceFinder
 
     my $geocoder = Geo::Coder::PlaceFinder->new(appid => 'Your App ID');
     my $location = $geocoder->geocode(
-        location => 'Hollywood and Highland, Los Angeles, CA'
+        location => '701 First Ave, Sunnyvale, CA'
     );
 
 =head1 DESCRIPTION
@@ -103,7 +103,11 @@ PlaceFinder geocoding service.
 
 =head2 new
 
-    $geocoder = Geo::Coder::PlaceFinder->new(appid => 'Your App ID')
+   $geocoder = Geo::Coder::PlaceFinder->new('Your App ID')
+   $geocoder = Geo::Coder::PlaceFinder->new(
+       appid => 'Your App ID',
+       # debug => 1,
+   )
 
 Creates a new geocoding object.
 
@@ -124,38 +128,46 @@ list context it returns all location results.
 Each location result is a hashref; a typical example looks like:
 
     {
-        areacode     => 213,
-        city         => "Los Angeles",
-        country      => "United States",
-        countrycode  => "US",
-        county       => "Los Angeles County",
-        countycode   => "",
-        cross        => "",
-        hash         => "",
-        house        => "",
-        latitude     => "34.101559",
-        line1        => "Hollywood and Highland",
-        line2        => "Los Angeles, CA  90028",
+        areacode    => 408,
+        city        => "Sunnyvale",
+        country     => "United States",
+        countrycode => "US",
+        county      => "Santa Clara County",
+        countycode  => "",
+        cross =>
+            "Near the intersection of 1st Ave and N Mathilda Ave/Bordeaux Dr",
+        hash         => "DDAD1896CC0CDC41",
+        house        => 701,
+        latitude     => "37.416275",
+        line1        => "701 1st Ave",
+        line2        => "Sunnyvale, CA  94089-1019",
         line3        => "",
         line4        => "United States",
-        longitude    => "-118.339073",
-        name         => "Hollywood and Highland",
+        longitude    => "-122.025092",
+        name         => "",
         neighborhood => "",
-        offsetlat    => "34.101559",
-        offsetlon    => "-118.339073",
-        postal       => 90028,
-        quality      => 90,
-        radius       => 100,
+        offsetlat    => "37.416397",
+        offsetlon    => "-122.025055",
+        postal       => "94089-1019",
+        quality      => 87,
+        radius       => 500,
         state        => "California",
         statecode    => "CA",
-        street       => "",
-        timezone     => "America/Los_Angeles",
-        unit         => "",
-        unittype     => "",
-        uzip         => 90028,
-        woeid        => 23529720,
-        woetype      => 20,
-        xstreet      => "",
+        street       => {
+            stbody   => "1ST",
+            stfull   => "1st Ave",
+            stpredir => undef,
+            stprefix => undef,
+            stsufdir => undef,
+            stsuffix => "AVE",
+        },
+        timezone => "America/Los_Angeles",
+        unit     => "",
+        unittype => "",
+        uzip     => 94089,
+        woeid    => 12797150,
+        woetype  => 11,
+        xstreet  => "",
     }
 
 =head2 response
