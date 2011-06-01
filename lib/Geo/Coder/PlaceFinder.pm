@@ -51,6 +51,7 @@ sub ua {
 sub geocode {
     my ($self, @params) = @_;
     my %params = (@params % 2) ? (location => @params) : @params;
+    my $raw = delete $params{raw};
 
     $_ = Encode::encode('utf-8', $_) for values %params;
 
@@ -71,6 +72,7 @@ sub geocode {
 
     my $data = eval { from_json($res->decoded_content) };
     return unless $data;
+    return $data if $raw;
 
     my @results = @{ $data->{ResultSet}{Results} || [] };
     return wantarray ? @results : $results[0];
@@ -111,11 +113,31 @@ PlaceFinder geocoding service.
 
 Creates a new geocoding object.
 
-A Yahoo API Key can be obtained here:
+Accepts the following named arguments:
+
+=over
+
+=item * I<appid>
+
+A Yahoo Application ID. (required)
+
+An ID can be obtained here:
 L<https://developer.apps.yahoo.com/dashboard/createKey.html>
 
-Accepts an optional B<ua> parameter for passing in a custom LWP::UserAgent
-object.
+=item * I<ua>
+
+A custom LWP::UserAgent object. (optional)
+
+=item * I<compress>
+
+Enable compression. (default: 1)
+
+=item * I<debug>
+
+Enable debugging. This prints the headers and content for requests and
+responses. (default: 0)
+
+=back
 
 =head2 geocode
 
@@ -125,7 +147,39 @@ object.
 In scalar context, this method returns the first location result; and in
 list context it returns all location results.
 
-Each location result is a hashref; a typical example looks like:
+Accepts the following named arguments:
+
+=over
+
+=item * I<location>
+
+The free-form, single line address to be located. (optional)
+
+=item * I<raw>
+
+Returns the raw data structure converted from the response, not split into
+location results.
+
+=back
+
+Any additional arguments will added to the request. See the Yahoo
+PlaceFinder documention for the full list of accepted arguments.
+
+By default the following arguments are added:
+
+=over
+
+=item * I<flags>
+
+JRST
+
+=item * I<gflags>
+
+AC
+
+=back
+
+Example of the data structure representing a location result:
 
     {
         areacode    => 408,
@@ -168,6 +222,18 @@ Each location result is a hashref; a typical example looks like:
         woeid    => 12797150,
         woetype  => 11,
         xstreet  => "",
+    }
+
+Example of the data structure returned using the I<raw> option:
+
+    ResultSet => {
+        Error        => 0,
+        ErrorMessage => "No error",
+        Found        => 1,
+        Locale       => "us_US",
+        Quality      => 60,
+        Results      => [ $location ]
+        version      => "1.0",
     }
 
 =head2 response
