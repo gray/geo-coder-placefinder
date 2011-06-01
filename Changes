@@ -1,5 +1,12 @@
 Revision history for Geo-Coder-PlaceFinder
 
+0.05  Sat Apr 30 01:11:49 UTC 2011
+    - Added 'raw' argument to geocode method.
+    - Added bounding box to each result.
+    - Removed parameter validation of request args- let Yahoo do it.
+    - Allowed compression to be used when under debug mode. (timbunce)
+    - Updated documentation.
+
 0.04  Mon Mar 21 18:07:44 UTC 2011
     - Enabled compressed responses by default.
 
