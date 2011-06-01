@@ -159,7 +159,7 @@ The free-form, single line address to be located. (optional)
 =item * I<raw>
 
 Returns the raw data structure converted from the response, not split into
-location results.
+location results. (optional)
 
 =back
 
